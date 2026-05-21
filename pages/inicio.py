@@ -5,13 +5,9 @@ import pandas as pd
 
 from model import load_and_train_model, CSV_PATH
 
-# ── Load model (cached) ──────────────────────────────────────────────────────
-model, encoders, feature_cols, label_cols = load_and_train_model()
+model, encoders, feature_cols, label_cols, _ = load_and_train_model()
 df = pd.read_csv(CSV_PATH)
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  HERO
-# ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <div class="hero-container">
     <div class="hero-title">Diagnóstico Médico</div>
@@ -29,9 +25,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  STATS
-# ══════════════════════════════════════════════════════════════════════════════
+# estaticas do modelo
 c1, c2, c3, c4 = st.columns(4)
 with c1:
     st.markdown(f"""

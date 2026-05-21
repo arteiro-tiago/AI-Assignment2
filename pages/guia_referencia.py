@@ -5,9 +5,6 @@ import os
 
 IMAGE_DIR = "images"
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  HEADER
-# ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <div class="hero-container" style="padding: 2rem;">
     <div class="hero-title" style="font-size: 2rem;">Guia de Referência Visual</div>
@@ -17,9 +14,6 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  GALLERY DATA
-# ══════════════════════════════════════════════════════════════════════════════
 GALLERY = {
     "Cor da Língua": {
         "description": (
@@ -131,14 +125,9 @@ GALLERY = {
     },
 }
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  RENDER GALLERY
-# ══════════════════════════════════════════════════════════════════════════════
 for category_name, category_data in GALLERY.items():
-    st.markdown(
-        f'<div class="section-header">{category_name}</div>',
-        unsafe_allow_html=True,
-    )
+    st.markdown(f'<div class="section-header">{category_name}</div>',unsafe_allow_html=True)
+    
     st.markdown(f"""
     <div style="color: #8899a6; margin-bottom: 1.5rem; font-size: 0.95rem;
          line-height: 1.6;">

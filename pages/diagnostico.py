@@ -9,17 +9,14 @@ from model import (
     load_and_train_model, predict_diagnosis,
     CATEGORIES, DISPLAY_LABELS, TONGUE_IMAGES,
     CONDITION_DESCRIPTIONS, get_format_func,
+    get_shap_contributions,
 )
 
-# ── Load model ────────────────────────────────────────────────────────────────
-try:
-    model, encoders, feature_cols, label_cols = load_and_train_model()
-except Exception as e:
-    st.error(f"Erro ao carregar o modelo: {e}")
-    st.stop()
+# carregar o modelo
+model, encoders, feature_cols, label_cols, shap_explainer = load_and_train_model()
 
 
-# ── Helper: tongue field with reference images above dropdown ─────────────────
+
 def tongue_field(label, cat_key, default):
     """Render reference images in a row, then a selectbox below."""
     st.markdown(f"**{label}**")
@@ -42,9 +39,7 @@ def tongue_field(label, cat_key, default):
     )
 
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  HEADER
-# ══════════════════════════════════════════════════════════════════════════════
+# header
 st.markdown("""
 <div class="hero-container" style="padding: 2rem;">
     <div class="hero-title" style="font-size: 2rem;">Diagnóstico</div>
@@ -56,9 +51,7 @@ st.markdown("""
 
 input_data = {}
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  SECTION 1 — General info
-# ══════════════════════════════════════════════════════════════════════════════
+#informações gerais
 st.markdown(
     '<div class="form-section-title">Informação Geral</div>',
     unsafe_allow_html=True,
@@ -80,31 +73,24 @@ with c2:
 
 st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  SECTION 2 — Tongue characteristics (images above dropdowns)
-# ══════════════════════════════════════════════════════════════════════════════
+# características da língua
+
 st.markdown(
     '<div class="form-section-title">Características da Língua</div>',
     unsafe_allow_html=True,
 )
 
-input_data['cor_lingua'] = tongue_field(
-    "Cor da Língua", 'cor_lingua', 'normal')
+input_data['cor_lingua'] = tongue_field("Cor da Língua", 'cor_lingua', 'normal')
 
-input_data['cor_saburra'] = tongue_field(
-    "Cor da Saburra", 'cor_saburra', 'sem_saburra')
+input_data['cor_saburra'] = tongue_field("Cor da Saburra", 'cor_saburra', 'sem_saburra')
 
-input_data['espessura_saburra'] = tongue_field(
-    "Espessura da Saburra", 'espessura_saburra', 'ausente')
+input_data['espessura_saburra'] = tongue_field("Espessura da Saburra", 'espessura_saburra', 'ausente')
 
-input_data['lingua_inchada'] = tongue_field(
-    "Língua Inchada", 'lingua_inchada', 'nao')
+input_data['lingua_inchada'] = tongue_field("Língua Inchada", 'lingua_inchada', 'nao')
 
 st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  SECTION 3 — Symptoms & lifestyle
-# ══════════════════════════════════════════════════════════════════════════════
+# outros simtomas e estilo de vida
 st.markdown(
     '<div class="form-section-title">Sintomas e Estilo de Vida</div>',
     unsafe_allow_html=True,
@@ -146,7 +132,7 @@ with c2:
         format_func=get_format_func('queda_cabelo'),
         index=CATEGORIES['queda_cabelo'].index('nao'))
 
-# Menstrual period — conditional
+# condição especial para mulheres por causa do periodo menstrual
 if input_data['sexo'] == 'feminino':
     input_data['periodo_menstrual'] = st.selectbox(
         "Período Menstrual",
@@ -155,9 +141,7 @@ if input_data['sexo'] == 'feminino':
 else:
     input_data['periodo_menstrual'] = 'nao_aplicavel'
 
-# ══════════════════════════════════════════════════════════════════════════════
-#  DIAGNOSE BUTTON
-# ══════════════════════════════════════════════════════════════════════════════
+# diagnóstico
 st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
 if st.button("Realizar Diagnóstico", type="primary", use_container_width=True):
@@ -166,11 +150,8 @@ if st.button("Realizar Diagnóstico", type="primary", use_container_width=True):
             model, encoders, feature_cols, label_cols, input_data
         )
 
-    # ── Results ───────────────────────────────────────────────────────────
-    st.markdown(
-        '<div class="section-header">Resultado</div>',
-        unsafe_allow_html=True,
-    )
+    # resultado
+    st.markdown('<div class="section-header">Resultado</div>',unsafe_allow_html=True)
 
     if diagnosticos:
         st.markdown("""
@@ -202,11 +183,8 @@ if st.button("Realizar Diagnóstico", type="primary", use_container_width=True):
         </div>
         """, unsafe_allow_html=True)
 
-    # ── Probability bars ──────────────────────────────────────────────────
-    st.markdown(
-        '<div class="section-header">Probabilidades</div>',
-        unsafe_allow_html=True,
-    )
+    # probabilidades dos resultados
+    st.markdown('<div class="section-header">Probabilidades</div>',unsafe_allow_html=True)
 
     display_probs = [(label, p) for label, p in probs if p > 0.05]
 
@@ -230,4 +208,67 @@ if st.button("Realizar Diagnóstico", type="primary", use_container_width=True):
 
     else:
         st.info("Nenhuma probabilidade significativa (> 5%) encontrada.")
+
+    # contribuições do SHAP 
+    st.markdown('<div class="custom-divider"></div>',unsafe_allow_html=True)
+    st.markdown('<div class="section-header">Análise de Características (SHAP)</div>',unsafe_allow_html=True)
+
+    if diagnosticos:
+        for diagnosis in diagnosticos:
+            formatted_diagnosis = diagnosis.replace('_', ' ').capitalize()
+            
+            st.markdown(f"""
+            <div style="margin-top: 1.5rem; margin-bottom: 1rem;">
+                <div class="prob-label">{formatted_diagnosis}</div>
+            </div>
+            """, unsafe_allow_html=True)
+            
+            contributions = get_shap_contributions(
+                shap_explainer, model, encoders, feature_cols, label_cols,
+                input_data, diagnosis
+            )
+            
+            if contributions:
+                for feature, shap_value in contributions:
+                    direction = "aumenta" if shap_value > 0 else "diminui"
+                    abs_value = abs(shap_value)
+                    
+                    if contributions:
+                        max_shap = 0
+                        for _, v in contributions:
+                            abs_v = abs(v)
+                            if abs_v > max_shap:
+                                max_shap = abs_v
+                    else:
+                        max_shap = 1
+
+                    if max_shap > 0:
+                        bar_width = (abs_value / max_shap) * 100
+                        if bar_width > 100:
+                            bar_width = 100
+                    else:
+                        bar_width = 0
+
+                    if shap_value > 0:
+                        bar_color = "#ff6b6b"
+                    else:
+                        bar_color = "#667eea"
+                        
+                    st.markdown(f"""
+                    <div style="margin-bottom: 0.8rem;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 0.2rem;">
+                            <span class="prob-label" style="font-size: 0.9rem;">{feature}</span>
+                            <span style="color: #8899a6; font-size: 0.85rem;">{direction}</span>
+                        </div>
+                        <div class="prob-bar-container">
+                            <div style="width: {max(bar_width, 5)}%; background: {bar_color}; 
+                                        padding: 0.4rem; color: white; text-align: right; 
+                                        font-size: 0.8rem; border-radius: 3px;">
+                                {abs_value:.3f}
+                            </div>
+                        </div>
+                    </div>
+                    """, unsafe_allow_html=True)
+    else:
+        st.info("Nenhuma análise de características.")
 

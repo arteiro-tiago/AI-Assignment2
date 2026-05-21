@@ -7,11 +7,11 @@ import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.preprocessing import LabelEncoder
 import streamlit as st
+import shap
 
 NUM_LABELS = 18
 CSV_PATH = "lingua_diagnostico.csv"
 
-# ── Category definitions (raw values for the model) ──────────────────────────
 CATEGORIES = {
     "cor_lingua":               ['normal', 'palida', 'purpura', 'vermelha'],
     "cor_saburra":              ['amarela', 'branca', 'sem_saburra'],
@@ -29,7 +29,7 @@ CATEGORIES = {
     "periodo_menstrual":        ['irregular', 'nao_aplicavel', 'regular'],
 }
 
-# ── Display labels (proper Portuguese with accents/caps) ─────────────────────
+# labels em portugues
 DISPLAY_LABELS = {
     "cor_lingua": {
         'normal':   'Normal',
@@ -100,7 +100,7 @@ DISPLAY_LABELS = {
     },
 }
 
-# ── Tongue reference image mapping ────────────────────────────────────────────
+# imagens das linguas
 TONGUE_IMAGES = {
     "cor_lingua": {
         'normal':   'images/língua-normal.jpg',
@@ -124,7 +124,7 @@ TONGUE_IMAGES = {
     },
 }
 
-# ── Condition descriptions ────────────────────────────────────────────────────
+# descrições das condiçoes 
 CONDITION_DESCRIPTIONS = {
     'resfriado':                    'Resfriado comum — infeção viral das vias aéreas superiores.',
     'gripe':                        'Gripe — infeção viral sistémica com febre e mal-estar.',
@@ -153,7 +153,7 @@ def get_format_func(category):
     return lambda x, _labels=labels: _labels.get(x, x.replace('_', ' ').capitalize())
 
 
-# ── Model loading & training ─────────────────────────────────────────────────
+# handle do modelo
 @st.cache_resource
 def load_and_train_model():
     """Load CSV data, encode features, and train a Random Forest classifier."""
@@ -177,11 +177,53 @@ def load_and_train_model():
         n_estimators=100, max_depth=10, random_state=42, n_jobs=-1
     )
     model.fit(x, y)
+    
+    # shap explainer criado aqui para ser guardado com o modelo
+    shap_explainer = shap.TreeExplainer(model)
 
-    return model, encoders, feature_cols, label_cols
+    return model, encoders, feature_cols, label_cols, shap_explainer
 
 
-# ── Prediction ────────────────────────────────────────────────────────────────
+# ── SHAP Explainer ────────────────────────────────────────────────────────────
+# The explainer is now created in load_and_train_model and returned directly
+
+
+def get_shap_contributions(explainer, model, encoders, feature_cols, label_cols, raw_input, diagnosis_label):
+    """
+    Calculate top 5 SHAP feature contributions for a specific diagnosis.
+    Returns list of (feature_display, abs_contribution) tuples sorted by magnitude.
+    """
+    # inputs
+    final_input = []
+    for col in feature_cols:
+        val = raw_input[col]
+        if col in encoders:
+            encoded_val = encoders[col].transform([val])[0]
+            final_input.append(encoded_val)
+        else:
+            final_input.append(val)
+    
+    X_input = np.array([final_input])
+    
+    shap_values = explainer.shap_values(X_input)
+    
+    label_index = label_cols.index(diagnosis_label)
+    
+    contributions = []
+    for i, feature in enumerate(feature_cols):
+        contribution = shap_values[0, i, label_index]
+        contributions.append((feature, contribution))
+    
+    contributions.sort(key=lambda x: abs(x[1]), reverse=True)
+    top_contributions = contributions[:5]
+    
+    result = []
+    for feature, contrib in top_contributions:
+        display_name = feature.replace('_', ' ').capitalize()
+        result.append((display_name, contrib))
+    
+    return result
+
 def predict_diagnosis(model, encoders, feature_cols, label_cols, raw_input):
     """Run prediction and return (diagnostics_list, sorted_probabilities)."""
     final_input = []
