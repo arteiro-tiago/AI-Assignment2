@@ -5,6 +5,8 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import LabelEncoder
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import classification_report
+import shap
+# print(shap.__version__) -> 0.51.0
 
 NUM_LABELS = 18
 
@@ -63,14 +65,15 @@ y_train, y_test = y[train_idx], y[test_idx]
  
 model = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42, n_jobs=-1)
 model.fit(x_train, y_train)
+explainer = shap.TreeExplainer(model)
 
 def convertInput(raw_input):
     final = []
     for col in feature_cols:
         val = raw_input[col]
         if col in encoders:
-            encoded_val = encoders[col].transform([val])[0]
-        final.append(encoded_val)
+            val = encoders[col].transform([val])[0]
+        final.append(val)
     return np.array([final])
  
  
@@ -106,6 +109,57 @@ def predict(raw_input: dict):
             print(f"  {label:<35} {p:.2f}")
 
 
+
+def explain_prediction(raw_input):
+
+    X_input = convertInput(raw_input)
+
+    shap_values = explainer.shap_values(X_input)
+
+    prediction = model.predict(X_input)[0]
+
+    print("\nEXPLICAÇÕES SHAP")
+    print("=" * 60)
+
+    for label_index, label in enumerate(label_cols):
+
+        if prediction[label_index] == 1:
+
+            print(f"\nDiagnóstico: {label}")
+
+            contributions = []
+
+            for i, feature in enumerate(feature_cols):
+
+                value = shap_values[0, i, label_index]
+
+                contributions.append((feature, value))
+
+            contributions.sort(key=lambda x: abs(x[1]), reverse=True)
+
+            for feature, value in contributions[:5]:
+
+                direction = "↑ aumenta" if value > 0 else "↓ diminui"
+
+                print(f"  {feature:<25} {direction} ({value:.3f})")
+
+
+def plot_shap(raw_input, label_index=0):
+
+    X_input = convertInput(raw_input)
+
+    shap_values = explainer.shap_values(X_input)
+
+    explanation = shap.Explanation(
+        values=shap_values[0, :, label_index],
+        base_values=explainer.expected_value[label_index],
+        data=X_input[0],
+        feature_names=feature_cols
+    )
+
+    shap.plots.waterfall(explanation)
+    
+
 input_teste = {
     "cor_lingua":            "normal",    # palida | vermelha | purpura | normal
     "cor_saburra":           "sem_saburra",     # branca | amarela | sem_saburra
@@ -127,4 +181,16 @@ input_teste = {
 }
 
 
+shap_values_train = explainer.shap_values(x_train)
+
+label_index = 0
+
+shap.summary_plot(
+    shap_values_train[:, :, label_index],
+    x_train,
+    feature_names=feature_cols
+)
+
 predict(input_teste)
+explain_prediction(input_teste)
+plot_shap(input_teste, label_index=0)
