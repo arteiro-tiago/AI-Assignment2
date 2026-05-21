@@ -14,7 +14,7 @@ df = pd.read_csv(CSV_PATH)
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <div class="hero-container">
-    <div class="hero-title">👅 Diagnóstico Médico</div>
+    <div class="hero-title">Diagnóstico Médico</div>
     <div style="font-size: 1.3rem; color: #e0e0e0; font-weight: 400;
          margin-bottom: 1rem; position: relative;">
         Sistema de Apoio ao Diagnóstico pela Língua

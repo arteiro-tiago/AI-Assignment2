@@ -47,7 +47,7 @@ def tongue_field(label, cat_key, default):
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <div class="hero-container" style="padding: 2rem;">
-    <div class="hero-title" style="font-size: 2rem;">🩺 Diagnóstico</div>
+    <div class="hero-title" style="font-size: 2rem;">Diagnóstico</div>
     <div class="hero-subtitle">
         Preencha os dados do paciente e as características observadas na língua.
     </div>
@@ -60,7 +60,7 @@ input_data = {}
 #  SECTION 1 — General info
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown(
-    '<div class="form-section-title">📋 Informação Geral</div>',
+    '<div class="form-section-title">Informação Geral</div>',
     unsafe_allow_html=True,
 )
 
@@ -84,7 +84,7 @@ st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 #  SECTION 2 — Tongue characteristics (images above dropdowns)
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown(
-    '<div class="form-section-title">👅 Características da Língua</div>',
+    '<div class="form-section-title">Características da Língua</div>',
     unsafe_allow_html=True,
 )
 
@@ -106,7 +106,7 @@ st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 #  SECTION 3 — Symptoms & lifestyle
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown(
-    '<div class="form-section-title">🏥 Sintomas e Estilo de Vida</div>',
+    '<div class="form-section-title">Sintomas e Estilo de Vida</div>',
     unsafe_allow_html=True,
 )
 
@@ -160,7 +160,7 @@ else:
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown('<div class="custom-divider"></div>', unsafe_allow_html=True)
 
-if st.button("🔍 Realizar Diagnóstico", type="primary", use_container_width=True):
+if st.button("Realizar Diagnóstico", type="primary", use_container_width=True):
     with st.spinner('A analisar…'):
         diagnosticos, probs = predict_diagnosis(
             model, encoders, feature_cols, label_cols, input_data
@@ -168,7 +168,7 @@ if st.button("🔍 Realizar Diagnóstico", type="primary", use_container_width=T
 
     # ── Results ───────────────────────────────────────────────────────────
     st.markdown(
-        '<div class="section-header">📋 Resultado</div>',
+        '<div class="section-header">Resultado</div>',
         unsafe_allow_html=True,
     )
 
@@ -176,7 +176,7 @@ if st.button("🔍 Realizar Diagnóstico", type="primary", use_container_width=T
         st.markdown("""
         <div class="result-positive">
             <div style="font-weight: 600; color: #ff6b6b;">
-                ⚠️ Condições sugeridas:
+                Condições sugeridas:
             </div>
         </div>
         """, unsafe_allow_html=True)
@@ -197,14 +197,14 @@ if st.button("🔍 Realizar Diagnóstico", type="primary", use_container_width=T
         st.markdown("""
         <div class="result-negative">
             <div style="font-weight: 600; color: #00d4aa;">
-                ✅ Nenhuma condição anómala identificada.
+                Nenhuma condição anómala identificada.
             </div>
         </div>
         """, unsafe_allow_html=True)
 
     # ── Probability bars ──────────────────────────────────────────────────
     st.markdown(
-        '<div class="section-header">📊 Probabilidades</div>',
+        '<div class="section-header">Probabilidades</div>',
         unsafe_allow_html=True,
     )
 

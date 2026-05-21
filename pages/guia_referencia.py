@@ -10,7 +10,7 @@ IMAGE_DIR = "images"
 # ══════════════════════════════════════════════════════════════════════════════
 st.markdown("""
 <div class="hero-container" style="padding: 2rem;">
-    <div class="hero-title" style="font-size: 2rem;">📖 Guia de Referência Visual</div>
+    <div class="hero-title" style="font-size: 2rem;">Guia de Referência Visual</div>
     <div class="hero-subtitle">
         Galeria de imagens de referência da língua, organizadas por categoria.
     </div>
@@ -21,7 +21,7 @@ st.markdown("""
 #  GALLERY DATA
 # ══════════════════════════════════════════════════════════════════════════════
 GALLERY = {
-    "🎨 Cor da Língua": {
+    "Cor da Língua": {
         "description": (
             "A cor da língua é um dos indicadores mais importantes. "
             "Uma língua saudável apresenta cor rosada uniforme."
@@ -57,7 +57,7 @@ GALLERY = {
             },
         ],
     },
-    "🧪 Saburra (Revestimento)": {
+    "Saburra (Revestimento)": {
         "description": (
             "A saburra é o revestimento da superfície da língua. "
             "Cor e espessura indicam o estado digestivo e energético."
@@ -93,7 +93,7 @@ GALLERY = {
             },
         ],
     },
-    "📐 Forma e Textura": {
+    "Forma e Textura": {
         "description": (
             "A forma e textura revelam o estado dos órgãos internos "
             "e a retenção de líquidos."
