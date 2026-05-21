@@ -19,6 +19,9 @@ source .venv/bin/activate
 
 # 3. instalar dependências
 pip install -r requirements.txt
+
+# 4. executar a aplicação
+streamlit run app.py
 ```
 
 ---
