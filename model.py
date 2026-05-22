@@ -1,7 +1,3 @@
-"""
-model.py — Shared model logic, constants, and utilities for LinguAI.
-"""
-
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
@@ -148,7 +144,6 @@ CONDITION_DESCRIPTIONS = {
 
 
 def get_format_func(category):
-    """Return a format function for selectbox display labels."""
     labels = DISPLAY_LABELS.get(category, {})
     return lambda x, _labels=labels: _labels.get(x, x.replace('_', ' ').capitalize())
 
@@ -156,7 +151,6 @@ def get_format_func(category):
 # handle do modelo
 @st.cache_resource
 def load_and_train_model():
-    """Load CSV data, encode features, and train a Random Forest classifier."""
     df = pd.read_csv(CSV_PATH)
 
     feature_cols = df.columns[:-NUM_LABELS].tolist()
@@ -173,9 +167,7 @@ def load_and_train_model():
 
     x = df[feature_cols].copy().values
 
-    model = RandomForestClassifier(
-        n_estimators=100, max_depth=10, random_state=42, n_jobs=-1
-    )
+    model = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42, n_jobs=-1)
     model.fit(x, y)
     
     # shap explainer criado aqui para ser guardado com o modelo
@@ -235,9 +227,9 @@ def predict_diagnosis(model, encoders, feature_cols, label_cols, raw_input):
         else:
             final_input.append(val)
 
-    X_input    = np.array([final_input])
+    X_input = np.array([final_input])
     prediction = model.predict(X_input)[0]
-    proba      = model.predict_proba(X_input)
+    proba = model.predict_proba(X_input)
 
     diagnosticos = [label_cols[i] for i, pred in enumerate(prediction) if pred == 1]
 

@@ -67,6 +67,16 @@ model = RandomForestClassifier(n_estimators=100, max_depth=10, random_state=42, 
 model.fit(x_train, y_train)
 explainer = shap.TreeExplainer(model)
 
+# avaliação rápida
+y_pred = model.predict(x_test)
+print("=" * 50)
+print("AVALIAÇÃO DO MODELO (test set 20%)")
+print("=" * 50)
+for i, label in enumerate(label_cols):
+    acc = np.mean(y_pred[:, i] == y_test[:, i])
+    print(f"  {label:<35} acc: {acc:.2f}")
+ 
+
 def convertInput(raw_input):
     final = []
     for col in feature_cols:

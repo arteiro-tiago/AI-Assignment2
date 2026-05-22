@@ -1,8 +1,3 @@
-"""
-styles.py — Shared CSS styles for LinguAI.
-Premium dark medical dashboard theme with glassmorphism and gradients.
-"""
-
 import streamlit as st
 
 
@@ -11,12 +6,10 @@ def get_base_css():
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-    /* ── Global overrides ─────────────────────────────────────────────── */
     .stApp {
         font-family: 'Inter', sans-serif;
     }
 
-    /* ── Hero section ─────────────────────────────────────────────────── */
     .hero-container {
         background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
         border-radius: 16px;
@@ -56,7 +49,6 @@ def get_base_css():
         position: relative;
     }
 
-    /* ── Glass cards ──────────────────────────────────────────────────── */
     .glass-card {
         background: rgba(17, 25, 40, 0.75);
         backdrop-filter: blur(16px);
@@ -91,7 +83,6 @@ def get_base_css():
         line-height: 1.5;
     }
 
-    /* ── Stats ────────────────────────────────────────────────────────── */
     .stat-card {
         background: rgba(17, 25, 40, 0.75);
         backdrop-filter: blur(16px);
@@ -117,7 +108,6 @@ def get_base_css():
         margin-top: 0.3rem;
     }
 
-    /* ── Section headers ──────────────────────────────────────────────── */
     .section-header {
         font-size: 1.4rem;
         font-weight: 600;
@@ -130,7 +120,6 @@ def get_base_css():
         gap: 0.5rem;
     }
 
-    /* ── Form sections ────────────────────────────────────────────────── */
     .form-section {
         background: rgba(17, 25, 40, 0.5);
         border-radius: 12px;
@@ -149,7 +138,6 @@ def get_base_css():
         gap: 0.5rem;
     }
 
-    /* ── Diagnosis results ────────────────────────────────────────────── */
     .result-positive {
         background: rgba(255, 107, 107, 0.1);
         border: 1px solid rgba(255, 107, 107, 0.3);
@@ -165,7 +153,6 @@ def get_base_css():
         padding: 1rem 1.2rem;
     }
 
-    /* ── Probability bars ─────────────────────────────────────────────── */
     .prob-bar-container {
         background: rgba(255, 255, 255, 0.05);
         border-radius: 8px;
@@ -207,7 +194,6 @@ def get_base_css():
         font-weight: 500;
     }
 
-    /* ── Badges ───────────────────────────────────────────────────────── */
     .badge {
         display: inline-block;
         padding: 0.2rem 0.8rem;
@@ -234,14 +220,12 @@ def get_base_css():
         border: 1px solid rgba(255, 107, 107, 0.3);
     }
 
-    /* ── Custom divider ───────────────────────────────────────────────── */
     .custom-divider {
         height: 1px;
         background: linear-gradient(90deg, transparent, rgba(0, 212, 170, 0.3), transparent);
         margin: 2rem 0;
     }
 
-    /* ── Footer ───────────────────────────────────────────────────────── */
     .footer {
         text-align: center;
         color: #556;
@@ -251,7 +235,6 @@ def get_base_css():
         margin-top: 3rem;
     }
 
-    /* ── Reference image styling ──────────────────────────────────────── */
     .ref-image-label {
         color: #ccc;
         font-size: 0.8rem;
@@ -260,7 +243,6 @@ def get_base_css():
         text-align: center;
     }
 
-    /* ── Streamlit overrides ──────────────────────────────────────────── */
     .stSelectbox label, .stNumberInput label, .stSlider label {
         color: #ccc !important;
         font-weight: 500 !important;
@@ -274,7 +256,6 @@ def get_base_css():
         color: #8899a6 !important;
     }
 
-    /* Better button styling */
     .stButton > button[kind="primary"] {
         background: linear-gradient(135deg, #00d4aa, #00b894) !important;
         border: none !important;
@@ -291,7 +272,6 @@ def get_base_css():
         box-shadow: 0 8px 25px rgba(0, 212, 170, 0.3) !important;
     }
 
-    /* Expander styling */
     .streamlit-expanderHeader {
         background: rgba(17, 25, 40, 0.5) !important;
         border-radius: 8px !important;
@@ -300,7 +280,6 @@ def get_base_css():
         font-weight: 500 !important;
     }
 
-    /* Tab styling */
     .stTabs [data-baseweb="tab-list"] {
         gap: 8px;
     }
